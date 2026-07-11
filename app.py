@@ -28,13 +28,14 @@ def load():
 VD, DF = load()
 S = VD["summary"]
 
+# order matches the assignment: Betweenness, Bridges, Closeness, Degree, Eigenvector, PageRank
 MEASURES = {
-    "pr":      ("PageRank",     "Random-surfer importance (weighted, damping 0.85)."),
     "btw":     ("Betweenness",  "Brokerage of information flow (sampled, 2000 pivots)."),
+    "bridges": ("Bridges",      "Number of incident bridge edges (cut edges)."),
     "clo":     ("Closeness",    "Proximity to all others (Wasserman-Faust, on the deg≥50 core)."),
     "deg":     ("Degree",       "Weighted out-degree = Σ outbound link weight."),
     "eig":     ("Eigenvector",  "Influence weighted by the influence of who links you."),
-    "bridges": ("Bridges",      "Number of incident bridge edges (cut edges)."),
+    "pr":      ("PageRank",     "Random-surfer importance (weighted, damping 0.85)."),
 }
 PALETTE = ['#34d8c6', '#ffb454', '#7c8cff', '#ff7a9c', '#5fd07a', '#ff8f5e',
            '#b892ff', '#4bc3ff', '#e9d16b', '#ff6b6b', '#46d6a8', '#ff9ed2', '#8aa0c8']
