@@ -125,6 +125,9 @@
   code.k{font-family:var(--mono);color:var(--ink);background:var(--panel2);padding:1px 5px;border-radius:4px;font-size:.92em}
   footer.foot{margin-top:40px;padding-top:20px;border-top:1px solid var(--border);color:var(--faint);font-size:12px;font-family:var(--mono)}
   a{color:var(--accent)}
+  .guide p{color:var(--ink);font-size:clamp(15px,1.55vw,17px);max-width:72ch;line-height:1.6}
+  .guide code{font-family:var(--mono);font-size:.85em;background:var(--panel2);padding:1px 6px;border-radius:5px}
+  .plain{color:var(--ink);font-size:14px;line-height:1.5;margin-bottom:4px}
   @media (max-width:520px){
     .bar{grid-template-columns:104px 1fr auto}
     .comm{grid-template-columns:14px 110px 1fr auto}
@@ -155,8 +158,15 @@
   </header>
 
   <section>
+    <div class="card guide" style="padding:20px 22px">
+      <h2 style="font-size:19px;font-weight:700;margin-bottom:8px">How to read this &mdash; in one breath</h2>
+      <p>Every dot is a <b>website</b> (a domain like <code>nytimes.com</code>), and every line means one site linked to another. We took <b>~795,000 sites</b> and ranked them <b>seven different ways</b> &mdash; each one a different answer to the same question: <b>who mattered most on the web in April 2009?</b> The panels below give each answer in plain English; the numbers underneath are the raw scores.</p>
+    </div>
+  </section>
+
+  <section>
     <div class="sec-head">
-      <h2>The core link network</h2>
+      <h2>The map: who links to whom</h2>
       <span class="note">top 50 domains by PageRank &middot; size &amp; colour switch by measure</span>
     </div>
     <div class="card net-card">
@@ -177,7 +187,7 @@
 
   <section>
     <div class="sec-head">
-      <h2>Centrality rankings</h2>
+      <h2>Seven ways to be important</h2>
       <span class="note">top 15 domains per measure, across all 795,268 nodes</span>
     </div>
     <div class="grid" id="rankings"></div>
@@ -185,10 +195,11 @@
 
   <section>
     <div class="sec-head">
-      <h2>Louvain communities</h2>
-      <span class="note">3,145 communities &middot; modularity 0.61 &middot; 12 largest shown</span>
+      <h2>The web&rsquo;s neighbourhoods <span style="font-weight:400;color:var(--muted);font-size:.72em">Louvain communities</span></h2>
+      <span class="note">3,145 clusters &middot; modularity 0.61 &middot; 12 largest shown</span>
     </div>
     <div class="card panel">
+      <p class="plain" style="margin-bottom:14px">The algorithm split the web into <b>3,145 clusters</b> that link within themselves far more than to the outside. Here are the 12 biggest, each labelled by its leading site.</p>
       <div class="comm-list" id="comms"></div>
     </div>
   </section>
@@ -234,17 +245,28 @@ $('#kpis').innerHTML = kpis.map(k=>
   `<div class="kpi"><div class="v ${k[3]?'accent':''}">${k[2]}</div><div class="l">${k[0]}</div></div>`).join('');
 
 /* ---------- Rankings ---------- */
+const PLAIN = {
+  btw:     {q:"Who connects separate worlds?", d:"Bridges between otherwise-separate groups \u2014 traffic between communities passes through these sites."},
+  bridges: {q:"Who holds the network together?", d:"Sit on the most \u201ccut\u201d links \u2014 remove them and whole chunks of the web break away."},
+  clo:     {q:"Who is closest to everyone?", d:"Fewest hops, on average, to reach any other site."},
+  deg:     {q:"Who links out the most?", d:"Sheer outbound volume \u2014 the biggest firehoses of links."},
+  eig:     {q:"Who is backed by important sites?", d:"Linked by other influential sites, not just by many sites."},
+  pr:      {q:"Who is most trusted overall?", d:"Google-style PageRank \u2014 a link from an important place counts for more."},
+};
 const rk = $('#rankings');
 DATA.measures_order.forEach(key=>{
   const t = DATA.top[key];
+  const p = PLAIN[key] || {q:t.label, d:t.sub};
   const rows = t.items.map((it,i)=>{
     const pct = Math.max(1.5, (it.v/t.max)*100);
-    return `<div class="bar"><div class="nm" title="${it.name}"><span class="rk">${String(i+1).padStart(2,'0')}</span>${it.name}</div>`+
+    const crown = i===0 ? '\uD83C\uDFC6 ' : '';
+    return `<div class="bar"><div class="nm" title="${it.name}"><span class="rk">${String(i+1).padStart(2,'0')}</span>${crown}${it.name}</div>`+
            `<div class="track"><div class="fill" style="width:${pct}%"></div></div>`+
            `<div class="val">${fmt(it.v)}</div></div>`;
   }).join('');
   rk.insertAdjacentHTML('beforeend',
-    `<div class="card panel"><h3><span class="dot"></span>${t.label}</h3><div class="sub">${t.sub}</div><div class="bars">${rows}</div></div>`);
+    `<div class="card panel"><h3><span class="dot"></span>${p.q}</h3><div class="plain">${p.d}</div>`+
+    `<div class="sub">${t.label} \u00b7 ${t.sub}</div><div class="bars">${rows}</div></div>`);
 });
 
 /* ---------- Communities ---------- */
