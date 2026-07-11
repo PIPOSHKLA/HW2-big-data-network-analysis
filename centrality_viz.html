@@ -116,6 +116,17 @@
   .comm .fill{height:100%;border-radius:5px}
   .comm .sz{font-family:var(--mono);font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
 
+  /* neighbourhoods (community membership) */
+  .neigh{display:grid;grid-template-columns:repeat(auto-fit,minmax(272px,1fr));gap:14px}
+  .ncard{padding:15px 16px}
+  .ncard .top{display:flex;align-items:center;gap:8px;margin-bottom:3px}
+  .ncard .sw{width:13px;height:13px;border-radius:4px;flex:none}
+  .ncard .th{font-weight:700;font-size:14.5px}
+  .ncard .meta{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:11px}
+  .chips2{display:flex;flex-wrap:wrap;gap:6px}
+  .mchip{font-size:11.5px;background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:3px 8px;color:var(--ink)}
+  .mchip.lead{border-color:var(--accent);color:var(--accent)}
+
   /* method */
   .method{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
   .m{padding:15px 16px}
@@ -216,6 +227,15 @@
 
   <section>
     <div class="sec-head">
+      <h2>Inside each neighbourhood</h2>
+      <span class="note">what Louvain actually grouped &mdash; top members of the 10 largest communities</span>
+    </div>
+    <p class="plain" style="max-width:70ch;margin-bottom:16px">Colour is only one way to show it. Because every site gets a community label, we can open each group and read its <b>theme</b> straight off the members &mdash; US news, tech, the Japanese web, the German web, and so on.</p>
+    <div class="neigh" id="neigh"></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
       <h2>All the numbers</h2>
       <span class="note">every measure, as a number, for the top domains &middot; click a column header to sort</span>
     </div>
@@ -298,6 +318,30 @@ $('#comms').innerHTML = DATA.communities.map((c,i)=>{
     `<span class="track"><span class="fill" style="width:${pct}%;background:${col}"></span></span>`+
     `<span class="sz">${fmt(c.size)} &middot; ${share}%</span></div>`;
 }).join('');
+
+/* ---------- Neighbourhoods (Louvain membership) ---------- */
+const NEIGH = [
+  {id:32562, size:196057, theme:"US news & blogs", members:["blogspot.com","blogger.com","nytimes.com","feedburner.com","bbc.co.uk","washingtonpost.com","americablog.com","wsj.com"]},
+  {id:764978, size:124668, theme:"Tech, reference & shopping", members:["wikipedia.org","amazon.com","apple.com","microsoft.com","cnet.com","contours.co.uk","wordpress.org","engadget.com"]},
+  {id:504611, size:79417, theme:"Portals & entertainment", members:["topix.net","imdb.com","msn.com","cnn.com","go.com","live.com","lowellsun.com","usatoday.com"]},
+  {id:261016, size:58393, theme:"Social web & link shorteners", members:["twitter.com","zappos.com","youtube.com","wordpress.com","bit.ly","tinyurl.com","wefollow.com","is.gd"]},
+  {id:518120, size:39914, theme:"Blogs, gov & orgs", members:["typepad.com","wnyc.org","ow.ly","over-blog.com","senate.gov","who.int","blogs.com","bookmarks.fr"]},
+  {id:105319, size:30524, theme:"Business & institutions", members:["bigblog.com","hstoday.us","obamaphotobook.com","businesswire.com","ibm.com","flossiemediagroup.com","gc.ca","me.com"]},
+  {id:76398, size:27605, theme:"Japanese web", members:["blogmura.com","fc2.com","ameblo.jp","digitalbuzzblog.com","rakuten.co.jp","amazon.co.jp","livedoor.jp","yahoo.co.jp"]},
+  {id:235325, size:27474, theme:"Social bookmarking", members:["wikipedia.com","yahoo.com","facebook.com","originalsignal.com","digg.com","netvouz.com","icio.us","stumbleupon.com"]},
+  {id:252498, size:26771, theme:"German web", members:["google.de","spiegel.de","icio.de","net-news-global.de","creative-weblogging.com","amazon.de","heise.de","tabnak.ir"]},
+  {id:456285, size:24732, theme:"Photo & media", members:["flickr.com","tumblr.com","tom.ma","2kewl4u.com","addtoany.com","ustream.tv","kriskrug.com","bigcartel.com"]},
+];
+const nb = $('#neigh');
+NEIGH.forEach((c,i)=>{
+  const col = COMM_COLORS[i % COMM_COLORS.length];
+  const share = (c.size / s.nodes * 100).toFixed(1);
+  const chips = c.members.map((m,j)=>`<span class="mchip${j===0?' lead':''}">${m}</span>`).join('');
+  nb.insertAdjacentHTML('beforeend',
+    `<div class="card ncard"><div class="top"><span class="sw" style="background:${col}"></span><span class="th">${c.theme}</span></div>`+
+    `<div class="meta">community #${c.id} \u00b7 ${fmt(c.size)} sites \u00b7 ${share}% of the web</div>`+
+    `<div class="chips2">${chips}</div></div>`);
+});
 
 /* ---------- Method ---------- */
 const methods = [
