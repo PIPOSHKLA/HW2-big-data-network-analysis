@@ -1,0 +1,5 @@
+﻿neo4j.env
+*.log
+__pycache__/
+.ipynb_checkpoints/
+_check.js
